@@ -1,10 +1,10 @@
 <?php
 
 class User {
-
+	//sträng med krypterat lösenord
 	private $hashedPsw = "";
 
-
+	//testa input från användaren, logga in om korrekt
 	public function login($inputName, $inputPsw) {
 
 		$username = "Admin";
@@ -12,18 +12,14 @@ class User {
 		$helpText = "";
 
 		//vid en lyckad inloggning	
-		if ($inputName == $username && $inputPsw == $password) {		
+		if ($inputName == $username && $inputPsw == $password) {				
+			 
+			$_SESSION["login"] = 1;			
 			
-			//starta en session 
-			$_SESSION["login"] = 1;		
-
-			//$this->verifiedUser($inputName);
-
-			//ladda om sidan så scriptet körs igen
 			header("Location: $_SERVER[PHP_SELF]");			
 		}
 
-		//felhantering av inmatad data från användaren
+		//felhantering av inmatad data från användaren, returnerar sträng m hjälptext
 		else if (isset($_POST["submit"])){		
 			if(empty($inputName) ) {
 				return $helpText= "Användarnamn saknas";
@@ -39,18 +35,15 @@ class User {
 		}
 	}
 
+	//visa feedback på inloggning
 	public function verifiedUser($inputName) {
 
 		if (isset($_SESSION["login"])) {
-
-			if ($this->testSession()==true) {
-						
-				echo "<h2> $inputName är inloggad</h2>";			
-				
+			if ($this->testSession()==true) {						
+				echo "<h2> $inputName är inloggad</h2>";				
 				$_SESSION["login"] = $_SESSION["login"]+1;
 
-				if ($_SESSION["login"] < 5) {
-					
+				if ($_SESSION["login"] < 5) {					
 					if (isset($_COOKIE["username"])) {
 						?>
 						<p>Inloggningen lyckades och vi kommer ihåg dig nästa gång</br></p>
@@ -62,25 +55,21 @@ class User {
 						<p>Inloggningen lyckades </br></p>
 						<?php
 					}
-				}
-			
+				}			
 				?>
 				<a href="?logout">Logga ut</a>
 				<?php
 			}
 
 			else {
-				//$this->logout();
 				unset($_SESSION["login"]);
 				session_destroy();
 				header("Location: $_SERVER[PHP_SELF]");
-
-
-			}
-			
+			}			
 		}
 	}
 
+	//skapa cookies
 	public function StoreUser ($inputName, $inputPsw) {
 
 		$this->login($inputName, $inputPsw);
@@ -97,9 +86,9 @@ class User {
 		}		
 	}
 
+	//logga in utifrån cookies
 	public function cookieLogin (){
 
-		//$hashedPsw;
 		$inputName = $_COOKIE["username"];
 		$inputPsw = $_COOKIE["password"];
 		
@@ -108,11 +97,7 @@ class User {
 		if ($inputPsw == $correctPsw) {
 						
 			if ($this->testSession()==true && $this->testCookie()==true) {
-				//logga in
-				//$this->StoreUser($inputName, $inputPsw);
-
-				//$inputName = $_COOKIE["username"];
-
+				
 				$_SESSION["login"] = 1;
 
 				echo "<h2> $inputName är inloggad</h2>";
@@ -130,17 +115,16 @@ class User {
 		else {
 			echo "<p>Felaktig information i cookie</p><br/>";
 
-				setcookie("username", "ended", strtotime( '-1 min' ));
-				setcookie("password", "ended", strtotime( '-1 min' ));
+			setcookie("username", "ended", strtotime( '-1 min' ));
+			setcookie("password", "ended", strtotime( '-1 min' ));
 
-				unset($_SESSION["login"]);
-				session_destroy();
-
-				//ladda om sidan så scriptet körs igen
-				//header("Location: $_SERVER[PHP_SELF]");
+			unset($_SESSION["login"]);
+			session_destroy();
 		}
 	}
 
+	//testar sessionen mot kapning
+	//true loggar in, false tillbaka till formuläret
 	public function testSession() {
 
 		$sessionLocation = "testSession";
@@ -154,7 +138,6 @@ class User {
 		if ($_SESSION[$sessionLocation]["browser"] != $_SERVER["HTTP_USER_AGENT"] ||
 			$_SESSION[$sessionLocation]["ip"] != $_SERVER["REMOTE_ADDR"]) {
 			
-			//echo "<p>Felaktig information i cookie</p><br/>";	
 			return false;
 		}
 
@@ -164,24 +147,24 @@ class User {
 
 	}
 
+	//testar att cookien är aktuell
+	//true loggar in, false tillbaka till formuläret
 	public function testCookie() {
 
 		if (isset($_COOKIE["username"])) {
 			$cookieEndTime = file_get_contents("endtime.txt");
-			//echo "$cookieEndTime";
 
 			if (time() > $cookieEndTime) {
-				//tillbaka t formuläret
 				return false;
 			} 
 
 			else {
-				//logga in
 				return true;
 			}
 		}
 	}
 	
+	//logga ut & förstör kcookies och sessionen
 	public function logout () {	
 		
 		if(!isset($_SESSION["login"])) {

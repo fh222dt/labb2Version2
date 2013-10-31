@@ -1,10 +1,12 @@
 <?php
 
 class View {
+
+	//visa inloggningsformulär
 	public function displayForm($helpText) {
-		//<!--value anv för att behålla inmatad text -->
+		//value anv för att behålla inmatad text
 		$value = isset($_POST['UserName']) ? $_POST['UserName'] : '';
-		//$helpText = ""; //retrurvärde fr login
+		
 		return 
 		"<form method='post' action='index.php' class='form-inline'>
 		<fieldset>
@@ -29,6 +31,7 @@ class View {
 
 	}
 
+	//visa datum och tid
 	public function displayDate() {
 
 		setlocale (LC_TIME, "Swedish");
