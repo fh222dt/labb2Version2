@@ -188,7 +188,7 @@ class User {
 	public function logout () {	
 		
 		if(!isset($_SESSION["login"])) {
-				return;
+				return "";
 		}
 
 		else {				

@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <?php 
 session_start();
 require_once("user.php");
@@ -21,7 +22,6 @@ require_once("view.php");
 
 	$html = new View();
 	$userObject = new User();
-	//$userObject->logout();
 	$inputName ="";
 	$inputPsw ="";
 
@@ -29,8 +29,10 @@ if(!isset($_SESSION["login"]) && !isset($_COOKIE["username"])) {
 	echo "<h2>Ej inloggad</h2>";
 }
 
-if (isset($_GET["logout"])) {
-	$userObject->logout();
+
+if (isset($_GET["logout"]) && isset($_SESSION["login"])) {
+	$stopLogin = $userObject->logout();
+	echo $html->displayForm($stopLogin);
 }
 
 if (isset($_POST["submit"]) && !isset($_POST["KeepLogin"])) {
@@ -60,8 +62,7 @@ if (isset($_COOKIE["username"]) && isset($_SESSION["login"])== null ) {
 
 if (empty($_COOKIE) || empty($_SESSION)) {
 		echo $html->displayForm($userObject->login($inputName, $inputPsw));
-
-	}
+}
 	
 echo $html->displayDate();
 
