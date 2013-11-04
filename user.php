@@ -43,7 +43,7 @@ class User {
 				echo "<h2> $inputName är inloggad</h2>";				
 				$_SESSION["login"] = $_SESSION["login"]+1;
 
-				if ($_SESSION["login"] < 5) {					
+				if ($_SESSION["login"] < 4) {					
 					if (isset($_COOKIE["username"])) {
 						?>
 						<p>Inloggningen lyckades och vi kommer ihåg dig nästa gång</br></p>
@@ -89,29 +89,47 @@ class User {
 	//logga in utifrån cookies
 	public function cookieLogin (){
 
-		$inputName = $_COOKIE["username"];
+		
 		$inputPsw = $_COOKIE["password"];
 		
-		$correctPsw = file_get_contents("password.txt");		
+		$correctPsw = file_get_contents("password.txt");
+		$results = false;		
 
 		if ($inputPsw == $correctPsw) {
-						
+
 			if ($this->testSession()==true && $this->testCookie()==true) {
-				
-				$_SESSION["login"] = 1;
-
-				echo "<h2> $inputName är inloggad</h2>";
-
-				?>
-				<p>Inloggningen lyckades via cookies</br></p>
-				<?php		
-
-				?>
-				<a href="?logout">Logga ut</a>
-				<?php
+				$results = true;
 			}
-		}		
-		
+
+			$this->cookieLoginResults($results);
+		}
+						
+		else {
+
+			$this->cookieLoginResults($results);
+		}
+
+	}
+
+	//visa resultat av login med cookie
+	private function cookieLoginResults($results) {
+
+		if($results == true) {
+			$_SESSION["login"] = 1;
+
+			$inputName = $_COOKIE["username"];
+
+			echo "<h2> $inputName är inloggad</h2>";
+
+			?>
+			<p>Inloggningen lyckades via cookies</br></p>
+			<?php		
+
+			?>
+			<a href="?logout">Logga ut</a>
+			<?php
+		}
+
 		else {
 			echo "<p>Felaktig information i cookie</p><br/>";
 
@@ -119,8 +137,10 @@ class User {
 			setcookie("password", "ended", strtotime( '-1 min' ));
 
 			unset($_SESSION["login"]);
+			unset($_SESSION["testSession"]);
 			session_destroy();
 		}
+
 	}
 
 	//testar sessionen mot kapning
@@ -164,16 +184,14 @@ class User {
 		}
 	}
 	
-	//logga ut & förstör kcookies och sessionen
+	//logga ut & förstör cookies och sessionen
 	public function logout () {	
 		
 		if(!isset($_SESSION["login"])) {
-				$helpText="";
+				return;
 		}
 
-		else {	
-
-			echo "<p>Du har nu loggat ut</p><br/>";
+		else {				
 
 			setcookie("username", "ended", strtotime( '-1 min' ));
 			setcookie("password", "ended", strtotime( '-1 min' ));
@@ -181,7 +199,9 @@ class User {
 			unset($_SESSION["login"]);
 			session_destroy();
 
-			header("Location: $_SERVER[PHP_SELF]");
+			//header("Location: $_SERVER[PHP_SELF]");
+
+			return "<p>Du har nu loggat ut</p><br/>";
 
 			//$view = new View();
 			//$view->displayForm("<p>Du har nu loggat ut</p><br/>");
@@ -189,6 +209,6 @@ class User {
 			//header("Location: ?logout");
 
 			//echo "<p>Du har nu loggat ut</p><br/>";
-		}	
+		}
 	}
 }	//class
